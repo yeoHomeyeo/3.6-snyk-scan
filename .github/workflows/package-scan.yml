@@ -38,7 +38,7 @@ jobs:
   # We will use Snyk to perform open source code scanning of our JavaScript files
   # Ensure that you have registered for a Snyk account
   # Grab the API key from your username > API Key
-  # Insert the API key in Github Actions Secret called "SNYK_API_TOKEN"
+  # Insert the API key in Github Actions Secret called "SNYK_TOKEN"
   
   package-osc-scan-snyk-scan:
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
       - name: Authenticate Snyk
-        run: snyk auth $SNYK_API_TOKEN
+        run: snyk auth $SNYK_TOKEN
       - name: Run Snyk Code Scan And Check Snyk Scan Results
         run: |
           snyk test --all-projects --severity-threshold=high
@@ -71,7 +71,7 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
       - name: Authenticate Snyk
-        run: snyk auth $SNYK_API_TOKEN
+        run: snyk auth $SNYK_TOKEN
       - name: Run Snyk Code Scan And Check Snyk Scan Results
         run: |
           snyk code test --all-projects --severity-threshold=high
@@ -94,7 +94,7 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
       - name: Authenticate Snyk
-        run: snyk auth $SNYK_API_TOKEN
+        run: snyk auth $SNYK_TOKEN
       - name: Run Snyk Code Scan And Check Snyk Scan Results
         run: |
           snyk iac test --severity-threshold=high
