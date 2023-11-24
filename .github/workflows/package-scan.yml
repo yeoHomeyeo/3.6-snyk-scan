@@ -48,18 +48,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Snyk CLI
         run: npm install -g snyk
-      - name: Authenticate Snyk
-        run: snyk auth $SNYK_TOKEN
-      - name: Run Snyk Code Scan And Check Snyk Scan Results
-        run: |
-          snyk test --all-projects --severity-threshold=high
-          # Fail the build if high severity vulnerabilities are found
-          if [ $? -ne 0 ]; then
-            echo "High severity vulnerabilities found. Failing the build."
-            exit 1
-          else
-            echo "No vulnerabilities found. Continuing with build."
-          fi
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
 
   # We will also use Snyk to perform application code scanning 
   package-app-scan-snyk-scan:
@@ -70,18 +64,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Snyk CLI
         run: npm install -g snyk
-      - name: Authenticate Snyk
-        run: snyk auth $SNYK_TOKEN
       - name: Run Snyk Code Scan And Check Snyk Scan Results
-        run: |
-          snyk code test --all-projects --severity-threshold=high
-          # Fail the build if high severity vulnerabilities are found
-          if [ $? -ne 0 ]; then
-            echo "High severity vulnerabilities found. Failing the build."
-            exit 1
-          else
-            echo "No vulnerabilities found. Continuing with build."
-          fi
+        run: snyk test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   # We will also use Snyk to perform code scanning of our Terraform IAC files
 
@@ -93,18 +79,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Snyk CLI
         run: npm install -g snyk
-      - name: Authenticate Snyk
-        run: snyk auth $SNYK_TOKEN
       - name: Run Snyk Code Scan And Check Snyk Scan Results
-        run: |
-          snyk iac test --severity-threshold=high
-          # Fail the build if high severity vulnerabilities are found
-          if [ $? -ne 0 ]; then
-            echo "High severity vulnerabilities found. Failing the build."
-            exit 1
-          else
-            echo "No vulnerabilities found. Continuing with build."
-          fi
+        uses: snyk/actions/iac@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --scan=resource-changes
 
   terraform-create:
     needs: [package-scan-npm-audit, package-osc-scan-snyk-scan, package-app-scan-snyk-scan, package-iac-scan-snyk-scan]
