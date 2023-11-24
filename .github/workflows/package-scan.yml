@@ -56,6 +56,7 @@ jobs:
           args: --severity-threshold=high
 
   # We will also use Snyk to perform application code scanning 
+
   package-app-scan-snyk-scan:
     runs-on: ubuntu-latest
     needs: install-dependencies
@@ -65,7 +66,7 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
       - name: Run Snyk Code Scan And Check Snyk Scan Results
-        run: snyk test
+        run: snyk code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -84,7 +85,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --scan=resource-changes
+          args: --severity-threshold=high
 
   terraform-create:
     needs: [package-scan-npm-audit, package-osc-scan-snyk-scan, package-app-scan-snyk-scan, package-iac-scan-snyk-scan]
