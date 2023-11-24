@@ -11,7 +11,114 @@ jobs:
     steps:
       - run: echo "This job is automatically triggered by a ${{ github.event_name }} event."
 
+  install-dependencies:
+    runs-on: ubuntu-latest
+    needs: [pre-deploy]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Run installation of dependencies commands
+        run: npm install
+
+  unit-testing:
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Run installation of dependencies commands
+        run: npm install
+      - name: Run unit testing command
+        run: npm test
+
+  # Perform first level package scanning using npm audit.
+  # npm audit information can be found here:
+  # https://docs.npmjs.com/cli/v9/commands/npm-audit
+
+  package-scan-npm-audit:
+    runs-on: ubuntu-latest
+    needs: unit-testing
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Run installation of dependencies commands
+        run: npm install
+      - name: Run audit
+        run: npm audit
+
+  # We will use Snyk to perform open source code scanning of our JavaScript files
+  # Ensure that you have registered for a Snyk account
+  # Grab the API key from your username > API Key
+  # Insert the API key in Github Actions Secret called "SNYK_API_TOKEN"
+  
+  package-osc-scan-snyk-scan:
+    runs-on: ubuntu-latest
+    needs: unit-testing
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+      - name: Authenticate Snyk
+        run: snyk auth $SNYK_API_TOKEN
+      - name: Run Snyk Code Scan And Check Snyk Scan Results
+        run: |
+          snyk test --all-projects --severity-threshold=high
+          # Fail the build if high severity vulnerabilities are found
+          if [ $? -ne 0 ]; then
+            echo "High severity vulnerabilities found. Failing the build."
+            exit 1
+          else
+            echo "No vulnerabilities found. Continuing with build."
+          fi
+
+  # We will also use Snyk to perform application code scanning 
+  package-app-scan-snyk-scan:
+    runs-on: ubuntu-latest
+    needs: unit-testing
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+      - name: Authenticate Snyk
+        run: snyk auth $SNYK_API_TOKEN
+      - name: Run Snyk Code Scan And Check Snyk Scan Results
+        run: |
+          snyk code test --all-projects --severity-threshold=high
+          # Fail the build if high severity vulnerabilities are found
+          if [ $? -ne 0 ]; then
+            echo "High severity vulnerabilities found. Failing the build."
+            exit 1
+          else
+            echo "No vulnerabilities found. Continuing with build."
+          fi
+
+  # We will also use Snyk to perform code scanning of our Terraform IAC files
+
+  package-iac-scan-snyk-scan:
+    runs-on: ubuntu-latest
+    needs: unit-testing
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+      - name: Authenticate Snyk
+        run: snyk auth $SNYK_API_TOKEN
+      - name: Run Snyk Code Scan And Check Snyk Scan Results
+        run: |
+          snyk iac test --severity-threshold=high
+          # Fail the build if high severity vulnerabilities are found
+          if [ $? -ne 0 ]; then
+            echo "High severity vulnerabilities found. Failing the build."
+            exit 1
+          else
+            echo "No vulnerabilities found. Continuing with build."
+          fi
+
   terraform-create:
+    needs: [package-scan-npm-audit, package-osc-scan-snyk-scan, package-app-scan-snyk-scan, package-iac-scan-snyk-scan]
     runs-on: ubuntu-latest
 
     steps:
