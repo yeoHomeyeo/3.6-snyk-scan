@@ -85,7 +85,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
+          args: "--report --severity-threshold=high --scan=resource-changes"
 
   terraform-create:
     needs: [package-scan-npm-audit, package-osc-scan-snyk-scan, package-app-scan-snyk-scan, package-iac-scan-snyk-scan]
