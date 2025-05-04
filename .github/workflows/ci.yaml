@@ -47,6 +47,26 @@ jobs:
     - name: Run TFLint
       run: tflint -f compact
 
+  snyk-checks:
+    runs-on: ubuntu-latest
+    needs: Initial-Checks
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run Snyk Code Scan
+        run: snyk code test --severity-threshold=medium
+      - name: Run Snyk Open Source Scan
+        run: snyk test --severity-threshold=medium
+      - name: Run Snyk Infrastructure as Code Scan
+        run: snyk iac test --severity-threshold=medium
+
+
   ########################################
   # Add a job for snyk scan of your code #
   ########################################
@@ -62,28 +82,28 @@ jobs:
   # outputs:
   #   status: ${{ job.status }}
   # for use in the summary
-  ########################################
+  # #######################################
 
-  #################################################
+  # ################################################
   # Finally, update summary for snyk-check        #
   # Update needs statement to include snyk-checks #
-  #################################################
+  # ################################################
   summary:
-    needs: [terraform-checks] # add snyk-checks 
+    needs: [terraform-checks, snyk-checks]
     runs-on: ubuntu-latest
     steps:
       - name: Adding markdown
         run: |
           TF_STATUS=${{ needs.terraform-checks.outputs.status }}
-          # SNYK_STATUS=${{ needs.snyk-checks.outputs.status }}
+          SNYK_STATUS=${{ needs.snyk-checks.outputs.status }}
 
           echo '## 🚀 Preparing Build Summary 🚀' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
 
-          echo "| Job Name        | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Job Name        | Status   |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------------|----------|" >> $GITHUB_STEP_SUMMARY
           echo "| tf-check       | $TF_STATUS |" >> $GITHUB_STEP_SUMMARY
-          # echo " snyk-check     | $SNYK_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| snyk-check     | $SNYK_STATUS |" >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
 
           echo '## Job ran by: ${{ github.actor }}' >> $GITHUB_STEP_SUMMARY
