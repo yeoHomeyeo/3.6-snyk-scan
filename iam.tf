@@ -9,7 +9,7 @@ data "aws_iam_policy_document" "inline_policy_cloudwatch" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]
-    resources = [data.aws_cloudwatch_log_group.lambda_log_group.arn]
+    resources = ["arn:aws:logs:us-east-1:255945442255:log-group:/aws/lambda/${var.lambda_function_name}:*"]
   }
 }
 
