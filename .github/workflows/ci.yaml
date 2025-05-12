@@ -50,8 +50,10 @@ jobs:
 
     - name: Run TFLint
       run: |
-        tflint -f compact --ignore=TF_PROVIDER,TF_REQ_VERSION,TF_UNUSED_VAR
-        echo "TFLint completed."
+        tflint -f compact \
+          --disable-rule=terraform_required_providers \
+          --disable-rule=terraform_required_version \
+          --disable-rule=terraform_unused_declarations
 
   ########################################
   # Add a job for snyk scan of your code #
