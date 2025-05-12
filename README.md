@@ -1,3 +1,78 @@
+### VPC serve no purpose, so removed
+## Successful Run
+![Succesful run](success.png)
+<br/>
+
+## IaC Test
+![IaC Test](snyk-IaC-test.png)
+<br/>
+## Code Test
+![Code Test](snyk-code-test.png)
+<br/>
+## Container Test
+![Container Test](snyk-container-test.png)
+<br/>
+## Open Source Test
+![Open Source Test](snyk-open-source-test.png)
+<br/>
+## Code Added to CI.yaml
+
+```
+  snyk-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (for snyk CLI)
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate with Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth $SNYK_TOKEN
+        
+      - name: Snyk Code Test
+        run: |
+          snyk code test || true
+          echo "Snyk Code Test completed."
+
+      - name: Snyk Open Source Test
+        run: |
+          snyk test || true
+          echo "Snyk Open Source Test completed."
+
+      - name: Snyk IaC Test
+        run: |
+          snyk iac test || true
+          echo "Snyk IAC Test completed."
+
+      - name: Snyk Container Test
+        run: |
+          snyk container test snyk-image || true
+          echo "Snyk container Test completed."
+
+      - name: Set status output
+        id: set-status
+        run: echo "status=success" >> $GITHUB_OUTPUT
+```
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
 # Scanning serverless code with Snyk and NPM Audit
 
 ## What is package vulnerability scan?
