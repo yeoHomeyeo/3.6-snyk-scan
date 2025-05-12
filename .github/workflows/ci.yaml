@@ -86,7 +86,7 @@ jobs:
 
       - name: Set status output
         id: set-status
-        run: echo "snyk scan success" >> $GITHUB_OUTPUT
+        run: echo "status=success" >> $GITHUB_OUTPUT
 
   #################################################
   # Finally, update summary for snyk-check        #
