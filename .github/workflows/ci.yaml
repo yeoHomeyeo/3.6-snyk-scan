@@ -75,23 +75,26 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk auth $SNYK_TOKEN
-        echo "Snyk authentication completed."
-
+        
       - name: Snyk Code Test
-        run: snyk code test || true
-        echo "Snyk Code Test completed."
+        run: |
+          snyk code test || true
+          echo "Snyk Code Test completed."
 
       - name: Snyk Open Source Test
-        run: snyk test || true
-        echo "Snyk Open Source Test completed."
+        run: |
+          snyk test || true
+          echo "Snyk Open Source Test completed."
 
       - name: Snyk IaC Test
-        run: snyk iac test || true
-        echo "Snyk IAC Test completed."
+        run: |
+          snyk iac test || true
+          echo "Snyk IAC Test completed."
 
       - name: Snyk Container Test
-        run: snyk container test snyk-image || true
-        echo "Snyk container Test completed."
+        run: |
+          snyk container test snyk-image || true
+          echo "Snyk container Test completed."
 
       - name: Set status output
         id: set-status
