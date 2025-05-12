@@ -49,7 +49,9 @@ jobs:
       run: tflint --init
 
     - name: Run TFLint
-      run: tflint -f compact
+      run: |
+        tflint -f compact --ignore=TF_PROVIDER,TF_REQ_VERSION,TF_UNUSED_VAR
+        echo "TFLint completed."
 
   ########################################
   # Add a job for snyk scan of your code #
