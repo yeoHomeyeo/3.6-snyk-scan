@@ -13,5 +13,5 @@ variable "lambda_file_name" {
 variable "iam_name" {
   description = "Name of IAM"
   type        = string
-  default     = "iam_package_scan_luqman_lambda"
+  default     = "iam_package_scan_chrisy_lambda"
 }
